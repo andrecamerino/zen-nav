@@ -1,8 +1,8 @@
 {
   "id": "zen-nav-keys",
   "name": "Zen Nav Keys",
-  "description": "Ctrl+J/K cycles tabs and tab-group folders (wraparound), Space opens a focused folder. Ctrl+H/L switches workspaces via gZenWorkspaces directly, routing around the compact-mode sidebar-peek bug (zen-browser/desktop#1813).",
-  "version": "1.1.0",
+  "description": "Ctrl+J/K cycles tabs and tab-group folders (wraparound), Space opens a focused folder. Ctrl+H/L switches workspaces via gZenWorkspaces directly (routing around the compact-mode sidebar-peek bug, zen-browser/desktop#1813), or steps across essential tabs when one is focused, falling through to workspace switching past either end.",
+  "version": "1.2.0",
   "scripts": {
     "navkeys.uc.js": {}
   }

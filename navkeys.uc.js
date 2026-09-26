@@ -10,13 +10,45 @@
 // folder is opened, its tabs become plain visible items in the same list, so
 // further Ctrl+J/K steps through them exactly like top-level tabs.
 //
-// Ctrl+H/L call gZenWorkspaces.changeWorkspaceShortcut() directly instead of
-// dispatching cmd_zenWorkspaceForward/Backward, because that native path
-// currently no-ops (sidebar "peeks" without switching) when Zen's sidebar is
-// fully hidden in compact mode: https://github.com/zen-browser/desktop/issues/1813
+// Ctrl+H/L normally call gZenWorkspaces.changeWorkspaceShortcut() directly
+// instead of dispatching cmd_zenWorkspaceForward/Backward, because that
+// native path currently no-ops (sidebar "peeks" without switching) when
+// Zen's sidebar is fully hidden in compact mode:
+// https://github.com/zen-browser/desktop/issues/1813
+//
+// Exception: if the currently selected tab is an "essential" tab (Zen's
+// cross-workspace pinned row, marked with the zen-essential attribute),
+// Ctrl+H/L instead step across that row via gZenWorkspaces'
+// getCurrentEssentialsContainer() (its DOM children include the essential
+// tab elements, in order, alongside non-tab layout elements we filter out).
+// Only once you'd move past the first/last essential does it fall through
+// to the normal workspace switch.
 (function () {
   if (window.__zenNavKeysInstalled) return;
   window.__zenNavKeysInstalled = true;
+
+  const getEssentials = () => {
+    const container = window.gZenWorkspaces?.getCurrentEssentialsContainer?.();
+    if (!container) return [];
+    return [...container.children].filter((el) =>
+      el.classList?.contains("tabbrowser-tab")
+    );
+  };
+
+  const navigateWorkspaceOrEssential = (dir) => {
+    const selected = gBrowser.selectedTab;
+    if (selected?.hasAttribute("zen-essential")) {
+      const essentials = getEssentials();
+      const index = essentials.indexOf(selected);
+      const nextIndex = index + dir;
+      if (index !== -1 && nextIndex >= 0 && nextIndex < essentials.length) {
+        gBrowser.selectedTab = essentials[nextIndex];
+        gBrowser.tabContainer.ariaFocusedItem?.focus();
+        return;
+      }
+    }
+    window.gZenWorkspaces?.changeWorkspaceShortcut(dir);
+  };
 
   window.addEventListener(
     "keydown",
@@ -35,10 +67,10 @@
           gBrowser.tabContainer.ariaFocusedItem?.focus();
           break;
         case "l":
-          window.gZenWorkspaces?.changeWorkspaceShortcut(1);
+          navigateWorkspaceOrEssential(1);
           break;
         case "h":
-          window.gZenWorkspaces?.changeWorkspaceShortcut(-1);
+          navigateWorkspaceOrEssential(-1);
           break;
         default:
           return;
