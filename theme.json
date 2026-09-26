@@ -1,0 +1,9 @@
+{
+  "id": "zen-nav-keys",
+  "name": "Zen Nav Keys",
+  "description": "Ctrl+J/K cycles tabs (wraparound). Ctrl+H/L switches workspaces via gZenWorkspaces directly, routing around the compact-mode sidebar-peek bug (zen-browser/desktop#1813).",
+  "version": "1.0.0",
+  "scripts": {
+    "navkeys.uc.js": {}
+  }
+}
